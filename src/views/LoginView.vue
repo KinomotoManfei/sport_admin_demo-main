@@ -24,7 +24,7 @@ const handleLogin = () => {
   if (studentId.value && password.value) {
     loginError.value = ''
     // 登录成功后跳转到管理员页面
-    router.push('/event')
+    router.push('/arrange')
   } else {
     loginError.value = '请输入学号和密码'
   }

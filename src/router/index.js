@@ -8,9 +8,6 @@ import Team from '@/views/admin_team.vue'
 
 // 导入所有页面组件
 const LoginView = () => import('../views/LoginView.vue')
-const EventSelectionView = () => import('../views/EventSelectionView.vue')
-const HistoryView = () => import('../views/HistoryView.vue')
-const ProfileView = () => import('../views/ProfileView.vue')
 
 // 创建路由实例
 const router = createRouter({
@@ -25,12 +22,6 @@ const router = createRouter({
       name: 'login',
       component: LoginView,
       meta: { requiresAuth: false },
-    },
-    {
-      path: '/events',
-      name: 'events',
-      component: EventSelectionView,
-      meta: { requiresAuth: true },
     },
     {
       path:'/arrange',
@@ -61,18 +52,6 @@ const router = createRouter({
       name:'team',
       component:Team,
       meta:{requiresAuth:true},
-    },
-    {
-      path: '/history',
-      name: 'history',
-      component: HistoryView,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/profile',
-      name: 'profile',
-      component: ProfileView,
-      meta: { requiresAuth: true },
     },
     // 404页面
     {

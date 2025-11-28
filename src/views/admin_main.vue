@@ -246,6 +246,7 @@ export default {
   flex: 1;
   padding: 1.042vw; /* 20px→20/19.2≈1.042vw */
   box-sizing: border-box;
+  position: relative; /* 新增：为按钮定位提供参考 */
 }
 
 /* 表单样式 */
@@ -261,7 +262,7 @@ export default {
   margin-right: 0.521vw; /* 10px→0.521vw */
 }
 .form-input {
-  font-size: 1.042vw; /* 20px→20/19.2≈1.042vw */
+  font-size: 0.729vw; /* 20px→20/19.2≈1.042vw */
   width: 10.417vw; /* 200px→200/19.2≈10.417vw */
   height: 1.458vw; /* 28px→28/19.2≈1.458vw */
   padding: 0 0.313vw; /* 6px→0.313vw */
@@ -304,9 +305,9 @@ export default {
 
 /* 发布按钮 */
 .submit-btn-group {
-  display: flex;
-  justify-content: center;
-  margin-top: 2.083vw; /* 40px→40/19.2≈2.083vw */
+  position: absolute; /* 新增：绝对定位 */
+  right: 1.042vw; /* 新增：右距离 */
+  bottom: 1.042vw; /* 新增：下距离 */
 }
 .submit-btn {
   padding: 0.313vw 1.042vw; /* 6px→0.313vw，20px→1.042vw */

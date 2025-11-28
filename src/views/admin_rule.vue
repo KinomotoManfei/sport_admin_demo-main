@@ -101,8 +101,8 @@
         </div>
 
         <!-- 保存按钮 -->
-        <div class="btn-group">
-          <button class="save-btn">保存</button>
+        <div class="submit-btn-group">
+          <button class="submit-btn">保存</button>
         </div>
       </div>
     </div>
@@ -264,6 +264,7 @@ export default {
   height: 1.458vw; /* 28px→28/19.2≈1.458vw */
   padding: 0 0.313vw; /* 6px→0.313vw */
   border: 0.052vw solid #ccc; /* 1px→0.052vw */
+  font-size: 0.729vw; /* 14px→0.729vw */
   box-sizing: border-box;
 }
 .form-input-long {
@@ -292,6 +293,7 @@ export default {
   display: flex;
   gap: 0.417vw; /* 8px→0.417vw */
   align-items: center;
+  font-size: 0.729vw; /* 14px→0.729vw */
 }
 .time-input {
   width: 2.083vw; /* 40px→40/19.2≈2.083vw */
@@ -309,6 +311,19 @@ export default {
   margin-top: 2.083vw; /* 40px→40/19.2≈2.083vw */
 }
 .save-btn {
+  padding: 0.313vw 1.042vw; /* 6px→0.313vw，20px→1.042vw */
+  background-color: #ccc;
+  border: none;
+  cursor: pointer;
+  font-size: 0.729vw; /* 14px→0.729vw */
+}
+/* 发布按钮 */
+.submit-btn-group {
+  position: absolute; /* 新增：绝对定位 */
+  right: 1.042vw; /* 新增：右距离 */
+  bottom: 1.042vw; /* 新增：下距离 */
+}
+.submit-btn {
   padding: 0.313vw 1.042vw; /* 6px→0.313vw，20px→1.042vw */
   background-color: #ccc;
   border: none;

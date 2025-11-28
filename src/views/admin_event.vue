@@ -254,7 +254,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped>/*基于1920的屏幕*/
 /* 全局容器 */
 .admin-container {
   width: 100vw;
