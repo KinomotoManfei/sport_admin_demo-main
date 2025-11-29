@@ -81,27 +81,28 @@
         <!-- 赛事名称 -->
         <div class="form-item">
           <label class="form-label">赛事名称:</label>
-          <input type="text" class="form-input" placeholder="请输入">
+          <input type="text" class="form-input" v-model="eventName" placeholder="请输入">
         </div>
 
         <!-- 时间选择 -->
         <div class="form-item">
           <label class="form-label">时间:</label>
           <div class="time-group">
-            <input type="text" class="time-input" placeholder="">月
-            <input type="text" class="time-input" placeholder="">日
+            <input type="text" class="time-input" v-model="eventTime.year" >年
+            <input type="text" class="time-input" v-model="eventTime.month" >月
+            <input type="text" class="time-input" v-model="eventTime.day" >日
           </div>
         </div>
 
         <!-- 地点 -->
         <div class="form-item">
           <label class="form-label">地点:</label>
-          <input type="text" class="form-input" placeholder="请输入">
+          <input type="text" class="form-input" v-model="eventLocation" placeholder="请输入">
         </div>
 
         <!-- 发布按钮 -->
         <div class="submit-btn-group">
-          <button class="submit-btn">发布信息</button>
+          <button class="submit-btn" @click = "submitInfo">发布信息</button>
         </div>
       </div>
     </div>
@@ -109,6 +110,9 @@
 </template>
 
 <script>
+import axios from 'axios'
+axios.defaults.baseURL = 'http://localhost:5173'
+
 export default {
   data() {
     return {
@@ -125,7 +129,15 @@ export default {
       matchTypes: ['足球', '篮球', '羽毛球', '排球', '水上运动'],
       // 当前选中的比赛类型
       activeMatchType: '足球',
-      activeMenu: 'info'
+      activeMenu: 'info',
+      // 表单数据绑定
+      eventName: '',
+      eventTime: {
+        year: '',
+        month: '',
+        day: ''
+      },
+      eventLocation: ''
     }
   },
   methods: {
@@ -133,6 +145,52 @@ export default {
     handleMenuClick(menuKey, path) {
       this.activeMenu = menuKey // 更新激活的菜单
       this.$router.push(path) // 路由跳转
+    },
+    async submitInfo() {
+      // 表单验证
+      if (!this.eventName) {
+        alert('请输入赛事名称')
+        return
+      }
+      if (!this.eventTime.year || !this.eventTime.month || !this.eventTime.day) {
+        alert('请完善日期信息')
+        return
+      }
+      if (!this.eventLocation) {
+        alert('请输入比赛地点')
+        return
+      }
+
+      try {
+        // 构造请求数据，与后端dto.PublishEventReq对应
+        const requestData = {
+          type: this.activeMatchType,
+          name: this.eventName,
+          time: {
+            year: this.eventTime.year,
+            month: this.eventTime.month,
+            day: this.eventTime.day
+          },
+          location: this.eventLocation
+        }
+
+        // 调用后端发布赛事接口
+        const response = await this.$http.post('/api/publish-event', requestData)
+
+        // 处理成功响应
+        if (response.data.code === 200) {
+          alert('信息发布成功！赛事ID: ' + response.data.data.eventId)
+          // 清空表单
+          this.eventName = ''
+          this.eventTime = { year: '', month: '', day: '' }
+          this.eventLocation = ''
+        } else {
+          alert('发布失败: ' + (response.data.message || '未知错误'))
+        }
+      } catch (error) {
+        console.error('发布失败', error)
+        alert('发布失败，请检查网络或服务器状态')
+      }
     }
   },
   mounted() {

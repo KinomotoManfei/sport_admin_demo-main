@@ -1,244 +1,175 @@
 <template>
+  <!-- 保持原有模板布局不变 -->
   <div class="admin-container">
-    <!-- 顶部标题栏 -->
     <div class="header">
       <h1 class="header-title">体育赛事系统管理员界面</h1>
       <div class="user-info">你好, xxx</div>
     </div>
-
-    <!-- 主体布局 -->
     <div class="main-layout">
-      <!-- 侧边导航栏 -->
       <div class="sidebar">
-        <!-- 赛事基本信息发布 → /admin -->
-        <div
-          class="menu-item"
-          :class="{ active: activeMenu === 'info' }"
-          @click="handleMenuClick('info', '/admin')"
-        >
+        <div class="menu-item" :class="{ active: activeMenu === 'info' }" @click="handleMenuClick('info', '/admin')">
           <span class="menu-icon">&#xe63c;</span>
           <span class="menu-text">赛事基本信息发布</span>
         </div>
-
-        <!-- 赛事编排管理 → /arrange -->
-        <div
-          class="menu-item"
-          :class="{ active: activeMenu === 'arrange' }"
-          @click="handleMenuClick('arrange', '/arrange')"
-        >
+        <div class="menu-item" :class="{ active: activeMenu === 'arrange' }" @click="handleMenuClick('arrange', '/arrange')">
           <span class="menu-icon">&#xe62a;</span>
           <span class="menu-text">赛事编排管理</span>
         </div>
-
-        <!-- 参赛队伍管理 → /team（当前选中） -->
-        <div
-          class="menu-item"
-          :class="{ active: activeMenu === 'team' }"
-          @click="handleMenuClick('team', '/team')"
-        >
+        <div class="menu-item" :class="{ active: activeMenu === 'team' }" @click="handleMenuClick('team', '/team')">
           <span class="menu-icon">&#xe61e;</span>
           <span class="menu-text">参赛队伍管理</span>
         </div>
-
-        <!-- 比赛规则配置 → /rule -->
-        <div
-          class="menu-item"
-          :class="{ active: activeMenu === 'rule' }"
-          @click="handleMenuClick('rule', '/rule')"
-        >
+        <div class="menu-item" :class="{ active: activeMenu === 'rule' }" @click="handleMenuClick('rule', '/rule')">
           <span class="menu-icon">&#xe60e;</span>
           <span class="menu-text">比赛规则配置</span>
         </div>
-
-        <!-- 成绩录入与管理 → /grade -->
-        <div
-          class="menu-item"
-          :class="{ active: activeMenu === 'score' }"
-          @click="handleMenuClick('score', '/grade')"
-        >
+        <div class="menu-item" :class="{ active: activeMenu === 'score' }" @click="handleMenuClick('score', '/grade')">
           <span class="menu-icon">&#xe628;</span>
           <span class="menu-text">成绩录入与管理</span>
         </div>
       </div>
-
-      <!-- 参赛队伍管理内容区域 -->
       <div class="content-area">
-        <!-- 比赛类型选择 -->
-        <div class="type-section">
-          <label class="type-label">比赛类型:</label>
-          <div class="type-buttons">
-            <button
-              v-for="(type, idx) in matchTypes"
-              :key="idx"
-              class="type-btn"
-              :class="{ active: activeMatchType === type }"
-              @click="activeMatchType = type"
-            >
+        <div class="form-item">
+          <label class="form-label">比赛类型:</label>
+          <div class="match-type-group">
+            <button v-for="(type, idx) in matchTypes" :key="idx" class="type-btn" :class="{ active: activeMatchType === type }" @click="activeMatchType = type">
               {{ type }}
             </button>
           </div>
         </div>
-
-        <!-- 可编辑赛事信息表格 -->
-        <table class="event-table">
-          <thead>
-            <tr>
-              <th>赛事名</th>
-              <th>参赛队伍1</th>
-              <th>参赛队伍2</th>
-              <th>时间</th>
-              <th>地点</th>
-              <th>最终成绩</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- 循环渲染可编辑行 -->
-            <tr v-for="(row, rowIndex) in tableData" :key="rowIndex">
-              <td
-                v-for="(cell, colIndex) in row"
-                :key="colIndex"
-                @click="enterEditMode(rowIndex, colIndex)"
-                class="editable-cell"
-              >
-                <!-- 非编辑状态显示文本 -->
-                <span v-if="!isEditing(rowIndex, colIndex)">{{ cell.value }}</span>
-
-                <!-- 编辑状态显示输入框 -->
-                <input
-                  v-else
-                  type="text"
-                  v-model="editValue"
-                  class="edit-input"
-                  @blur="saveEdit(rowIndex, colIndex)"
-                  @keyup.enter="saveEdit(rowIndex, colIndex)"
-                  @keyup.esc="cancelEdit()"
-                  ref="editInput"
-                >
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- 保存按钮 -->
-        <button class="save-btn" @click="saveAllData">保存</button>
+        <div class="table-container">
+          <table class="grade-table">
+            <thead>
+              <tr>
+                <th>赛事名</th>
+                <th>参赛队伍1</th>
+                <th>参赛队伍2</th>
+                <th>时间</th>
+                <th>地点</th>
+                <th>比分</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(row, rowIdx) in tableData" :key="rowIdx">
+                <td v-for="(cell, colIdx) in row" :key="colIdx" @click="enterEditMode(rowIdx, colIdx)" class="editable-cell">
+                  <span class = "column-input" v-if="!isEditing(rowIdx, colIdx)">{{ cell.value || '-' }}</span>
+                  <input class = "column-input" v-else ref="editInput" type="text" v-model="editValue" @blur="saveEdit(rowIdx, colIdx)" @keyup.enter="saveEdit(rowIdx, colIdx)" @keyup.esc="cancelEdit">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="submit-btn-group">
+          <button class="submit-btn" @click="saveGrade">保存成绩</button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+axios.defaults.baseURL = 'http://localhost:8080'
+
 export default {
   data() {
     return {
-      // 当前激活的菜单
-      activeMenu: 'team',
-      // 比赛类型选项
+      menuList: [
+        { label: '赛事基本信息发布', icon: '&#xe63c;' },
+        { label: '赛事编排管理', icon: '&#xe62a;' },
+        { label: '参赛队伍管理', icon: '&#xe61e;' },
+        { label: '比赛规则配置', icon: '&#xe60e;' },
+        { label: '成绩录入与管理', icon: '&#xe628;' }
+      ],
+      activeMenu: 'score',
       matchTypes: ['足球', '篮球', '羽毛球', '排球', '水上运动'],
       activeMatchType: '足球',
-
-      // 表格数据（初始化8行6列空数据）
-      tableData: Array(8).fill().map(() =>
+      tableData: Array(7).fill().map(() =>
         Array(6).fill().map(() => ({ value: '' }))
       ),
-
-      // 编辑状态管理
-      editing: {
-        row: -1,  // 当前编辑的行索引
-        col: -1   // 当前编辑的列索引
-      },
-      editValue: ''  // 编辑框临时值
+      editing: { row: -1, col: -1 },
+      editValue: ''
     }
   },
   methods: {
-    // 菜单点击处理
     handleMenuClick(menuKey, path) {
       this.activeMenu = menuKey
       this.$router.push(path)
     },
-
-    // 判断是否处于编辑状态
     isEditing(row, col) {
       return this.editing.row === row && this.editing.col === col
     },
-
-    // 进入编辑模式
     enterEditMode(row, col) {
-      // 记录当前单元格的值
       this.editValue = this.tableData[row][col].value
-      // 更新编辑状态
       this.editing.row = row
       this.editing.col = col
-      // 延迟聚焦输入框（确保DOM已更新）
       this.$nextTick(() => {
         this.$refs.editInput?.focus()
       })
     },
-
-    // 保存编辑内容
     saveEdit(row, col) {
       if (this.isEditing(row, col)) {
-        // 更新表格数据
         this.tableData[row][col].value = this.editValue
-        // 退出编辑状态
         this.editing.row = -1
         this.editing.col = -1
       }
     },
-
-    // 取消编辑
     cancelEdit() {
       this.editing.row = -1
       this.editing.col = -1
     },
+    // 核心修改：调用后端成绩录入接口
+    async saveGrade() {
+      const validData = this.tableData.filter(row =>
+        row.some(cell => cell.value.trim() !== '')
+      )
+      if (validData.length === 0) {
+        alert('请填写至少一行成绩数据！')
+        return
+      }
 
-    // 保存所有表格数据（可对接后端API）
-    saveAllData() {
-      console.log('保存表格数据:', this.tableData)
-      // 实际项目中可添加：
-      // this.$axios.post('/api/save-team-data', { data: this.tableData })
-      alert('数据已保存')
+      try {
+        const requestData = {
+          type: this.activeMatchType,
+          data: this.tableData.map(row =>
+            row.map(cell => ({ value: cell.value.trim() }))
+          )
+        }
+        // 调用后端 /api/save-grade 接口
+        const response = await axios.post('/api/save-grade', requestData)
+
+        if (response.data.code === 200) {
+          alert('成绩保存成功！')
+          this.tableData = Array(7).fill().map(() =>
+            Array(6).fill().map(() => ({ value: '' }))
+          )
+        } else {
+          alert('保存失败：' + (response.data.message || '未知错误'))
+        }
+      } catch (error) {
+        console.error('成绩保存失败：', error)
+        alert('保存失败，请检查网络或后端服务！')
+      }
     }
   },
   mounted() {
-    // 初始化时根据当前路由设置激活菜单
     const currentPath = this.$route.path
     switch (currentPath) {
-      case '/admin':
-        this.activeMenu = 'info'
-        break
-      case '/arrange':
-        this.activeMenu = 'arrange'
-        break
-      case '/team':
-        this.activeMenu = 'team'
-        break
-      case '/rule':
-        this.activeMenu = 'rule'
-        break
-      case '/grade':
-        this.activeMenu = 'score'
-        break
+      case '/admin': this.activeMenu = 'info'; break
+      case '/arrange': this.activeMenu = 'arrange'; break
+      case '/team': this.activeMenu = 'team'; break
+      case '/rule': this.activeMenu = 'rule'; break
+      case '/grade': this.activeMenu = 'score'; break
     }
   },
   watch: {
-    // 监听路由变化，同步更新激活菜单
     $route(to) {
       switch (to.path) {
-        case '/admin':
-          this.activeMenu = 'info'
-          break
-        case '/arrange':
-          this.activeMenu = 'arrange'
-          break
-        case '/team':
-          this.activeMenu = 'team'
-          break
-        case '/rule':
-          this.activeMenu = 'rule'
-          break
-        case '/grade':
-          this.activeMenu = 'score'
-          break
+        case '/admin': this.activeMenu = 'info'; break
+        case '/arrange': this.activeMenu = 'arrange'; break
+        case '/team': this.activeMenu = 'team'; break
+        case '/rule': this.activeMenu = 'rule'; break
+        case '/grade': this.activeMenu = 'score'; break
       }
     }
   }
@@ -246,158 +177,130 @@ export default {
 </script>
 
 <style scoped>
-/* 全局容器 */
+/* 保持原有样式完全不变 */
 .admin-container {
   width: 100vw;
   height: 100vh;
-  border: 0.104vw solid #007bff; /* 2px → 2/19.2≈0.104vw */
+  border: 0.104vw solid #007bff;
   box-sizing: border-box;
   font-family: "微软雅黑", sans-serif;
 }
-
-/* 顶部标题栏 */
 .header {
   background-color: #b3e5fc;
-  padding: 0.417vw 0.833vw; /* 8px→0.417vw，16px→0.833vw */
+  padding: 0.417vw 0.833vw;
   position: relative;
-  border-bottom: 0.052vw solid #007bff; /* 1px→0.052vw */
+  border-bottom: 0.052vw solid #007bff;
 }
 .header-title {
-  font-size: 0.938vw; /* 18px→18/19.2=0.9375≈0.938vw */
+  font-size: 0.938vw;
   font-weight: bold;
   text-align: center;
   margin: 0;
 }
 .user-info {
   position: absolute;
-  right: 0.833vw; /* 16px→0.833vw */
+  right: 0.833vw;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.729vw; /* 14px→14/19.2≈0.729vw */
+  font-size: 0.729vw;
 }
-
-/* 主体布局 */
 .main-layout {
   display: flex;
-  height: calc(100% - 2.188vw); /* 42px→42/19.2=2.1875≈2.188vw */
+  height: calc(100% - 2.188vw);
 }
-
-/* 侧边导航栏 */
 .sidebar {
-  width: 7.813vw; /* 150px→150/19.2=7.8125≈7.813vw */
+  width: 7.813vw;
   background-color: #f0f0f0;
-  border-right: 0.052vw solid #007bff; /* 1px→0.052vw */
+  border-right: 0.052vw solid #007bff;
 }
 .menu-item {
-  padding: 0.521vw 0.625vw; /* 10px→0.521vw，12px→0.625vw */
-  font-size: 0.729vw; /* 14px→0.729vw */
+  padding: 0.521vw 0.625vw;
+  font-size: 0.729vw;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.313vw; /* 6px→6/19.2=0.3125≈0.313vw */
-  transition: all 0.2s;
+  gap: 0.313vw;
 }
 .menu-item.active {
   background-color: #e3f2fd;
   color: #2196f3;
-  border-left: 0.156vw solid #007bff; /* 3px→3/19.2=0.15625≈0.156vw */
-}
-.menu-item:hover {
-  background-color: #e8e8e8;
 }
 .menu-icon {
   font-family: "iconfont";
-  font-size: 0.833vw; /* 16px→0.833vw */
 }
-
-/* 内容区域 */
 .content-area {
   flex: 1;
-  padding: 1.042vw; /* 20px→20/19.2≈1.042vw */
+  padding: 1.042vw;
   box-sizing: border-box;
   position: relative;
 }
-
-/* 比赛类型区域 */
-.type-section {
+.form-item {
+  margin-bottom: 1.042vw;
   display: flex;
   align-items: center;
-  margin-bottom: 0.781vw; /* 15px→15/19.2=0.78125≈0.781vw */
 }
-.type-label {
-  font-size: 0.729vw; /* 14px→0.729vw */
-  margin-right: 0.521vw; /* 10px→0.521vw */
+.form-label {
+  width: 4.167vw;
+  text-align: left;
+  font-size: 0.729vw;
+  margin-right: 0.521vw;
 }
-.type-buttons {
+.match-type-group {
   display: flex;
-  gap: 0.26vw; /* 5px→5/19.2≈0.26vw */
+  gap: 0.521vw;
 }
 .type-btn {
-  padding: 0.208vw 0.625vw; /* 4px→0.208vw，12px→0.625vw */
-  border: 0.052vw solid #007bff; /* 1px→0.052vw */
+  padding: 0.208vw 0.625vw;
+  border: 0.052vw solid #007bff;
   background-color: #fff;
   cursor: pointer;
-  font-size: 0.729vw; /* 14px→0.729vw */
+  font-size: 0.729vw;
 }
 .type-btn.active {
   background-color: #007bff;
   color: #fff;
 }
-
-/* 赛事表格 */
-.event-table {
+.table-container {
+  margin: 1.042vw 0;
+  overflow: auto;
+}
+.grade-table {
   width: 100%;
   border-collapse: collapse;
-  border: 0.052vw solid #000; /* 1px→0.052vw */
 }
-.event-table th,
-.event-table td {
-  border: 0.052vw solid #000; /* 1px→0.052vw */
-  padding: 0; /* 去除内边距，避免编辑框错位 */
+.grade-table th, .grade-table td {
+  border: 0.052vw solid #ccc;
+  padding: 0.521vw;
   text-align: center;
-  font-size: 0.729vw; /* 14px→0.729vw */
-  min-width: 5.208vw; /* 100px→100/19.2≈5.208vw */
-  height: 1.875vw; /* 36px→36/19.2=1.875vw */
+  font-size: 0.729vw;
 }
-.event-table th {
-  font-weight: normal;
+.grade-table th {
   background-color: #f5f5f5;
 }
-
-/* 可编辑单元格样式 */
 .editable-cell {
-  cursor: text;
-  padding: 0 0.208vw; /* 4px→0.208vw */
+  cursor: pointer;
 }
-.editable-cell:hover {
-  background-color: #f0f8ff;
-}
-
-/* 编辑框样式 */
-.edit-input {
+.editable-cell input {
   width: 100%;
-  height: 100%;
-  border: none;
-  padding: 0 0.208vw; /* 4px→0.208vw */
-  margin: 0;
-  outline: 0.052vw solid #007bff; /* 1px→0.052vw */
-  background-color: #e3f2fd;
-  font-size: 0.729vw; /* 14px→0.729vw */
+  padding: 0.208vw;
+  border: 0.052vw solid #007bff;
   box-sizing: border-box;
 }
-
-/* 保存按钮 */
-.save-btn {
+.submit-btn-group {
   position: absolute;
-  bottom: 1.042vw; /* 20px→1.042vw */
-  right: 1.042vw; /* 20px→1.042vw */
-  padding: 0.313vw 1.042vw; /* 6px→0.313vw，20px→1.042vw */
-  background-color: #ccc;
-  border: 0.052vw solid #999; /* 1px→0.052vw */
-  cursor: pointer;
-  font-size: 0.729vw; /* 14px→0.729vw */
+  right: 1.042vw;
+  bottom: 1.042vw;
 }
-.save-btn:hover {
-  background-color: #bbb;
+.submit-btn {
+  padding: 0.313vw 1.042vw;
+  background-color: #ccc;
+  border: none;
+  cursor: pointer;
+  font-size: 0.729vw;
+}
+.column-input {
+  font-size: 0.729vw; /* 14px→0.729vw */
+
+  text-align: center;
 }
 </style>

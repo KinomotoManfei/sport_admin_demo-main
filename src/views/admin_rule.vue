@@ -82,27 +82,28 @@
         <!-- 队伍人数 -->
         <div class="form-item">
           <label class="form-label">队伍人数:</label>
-          <input type="text" class="form-input" placeholder="请输入人数">
+          <input type="text" class="form-input" placeholder="请输入人数" >
         </div>
 
         <!-- 时间选择 -->
         <div class="form-item">
           <label class="form-label">时间:</label>
           <div class="time-group">
-            <input type="text" class="time-input" placeholder="">月
-            <input type="text" class="time-input" placeholder="">日
+            <input type="text" class="time-input" placeholder="" v-model = "eventTime.year">年
+            <input type="text" class="time-input" placeholder="" v-model = "eventTime.month">月
+            <input type="text" class="time-input" placeholder="" v-model = "eventTime.day">日
           </div>
         </div>
 
         <!-- 获胜条件 -->
         <div class="form-item">
           <label class="form-label">获胜条件:</label>
-          <input type="text" class="form-input form-input-long" placeholder="格式待定">
+          <input type="text" class="form-input form-input-long" placeholder="格式待定" v-model = "winCondition">
         </div>
 
         <!-- 保存按钮 -->
         <div class="submit-btn-group">
-          <button class="submit-btn">保存</button>
+          <button class="submit-btn" @click = "saveInfo">保存</button>
         </div>
       </div>
     </div>
@@ -110,6 +111,9 @@
 </template>
 
 <script>
+import axios from 'axios'
+axios.defaults.baseURL = 'http://localhost:5173'
+
 export default {
   data() {
     return {
@@ -118,7 +122,13 @@ export default {
       // 比赛类型选项
       matchTypes: ['足球', '篮球', '羽毛球', '排球', '水上运动'],
       // 当前选中的比赛类型
-      activeMatchType: '足球'
+      activeMatchType: '足球',
+      eventTime:{
+        year:'',
+        month:'',
+        day:''
+      },
+      winCondition:''
     }
   },
   methods: {
@@ -126,6 +136,42 @@ export default {
     handleMenuClick(menuKey, path) {
       this.activeMenu = menuKey
       this.$router.push(path)
+    },
+    async saveInfo(){
+      if(this.eventTime.year == ''||this.eventTime.month == ''||this.eventTime.day==''){
+        alert("请完整填写时间信息")
+        return
+      }
+      if(this.winCondition == ''){
+        alert("请填写获胜条件")
+        return
+      }
+      try{
+        const requestData = {
+          Type: this.activeMatchType,
+          MatchTime:{
+            year:this.eventTime.year,
+            month:this.eventTime.month,
+            day:this.eventTime.day
+          },
+          WinCondition:this.winCondition
+        }
+        const response = await this.$axios.post('/api/save-rule',requestData)
+
+        if(response.data.code === 200){
+          alert("保存成功")
+          this.winCondition = ''
+          this.eventTime.year = ''
+          this.eventTime.month = ''
+          this.eventTime.day = ''
+        } else{
+          alert("保存失败：" + response.data.message)
+        }
+      }
+      catch(error){
+        console.error("保存规则信息时出错:", error)
+        alert("保存失败，请检查网络或服务器状态")
+      }
     }
   },
   mounted() {
@@ -296,6 +342,7 @@ export default {
   font-size: 0.729vw; /* 14px→0.729vw */
 }
 .time-input {
+  font-size: 0.729vw; /* 14px→0.729vw */
   width: 2.083vw; /* 40px→40/19.2≈2.083vw */
   height: 1.458vw; /* 28px→1.458vw */
   padding: 0 0.313vw; /* 6px→0.313vw */
